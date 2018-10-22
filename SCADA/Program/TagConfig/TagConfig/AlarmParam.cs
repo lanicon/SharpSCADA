@@ -8,20 +8,20 @@ namespace TagConfig
     {
         List<Condition> _conditions;
         List<SubCondition> _subconds;
-        TagData _tag;
+        Tag _tag;
 
         public static readonly string[] _severitys = new string[]
         {
              "正常","消息","低","中低","中","中高","高","错误"
         };
 
-        public AlarmParam(List<Condition> conds, List<SubCondition> subconds, TagData tag)
+        public AlarmParam(List<Condition> conds, List<SubCondition> subconds, Tag tag)
         {
             InitializeComponent();
             _conditions = conds;
             _subconds = subconds;
             _tag = tag;
-            this.Text = this.Text + ":" + tag.Name;
+            this.Text = this.Text + ":" + tag.TagName;
         }
 
         private void AlarmParam_Load(object sender, EventArgs e)
@@ -190,40 +190,35 @@ namespace TagConfig
             _tag.HasAlarm = false;
             if (chkLOLO.Checked || chkLO.Checked || chkHI.Checked || chkHIHI.Checked)
             {
-                float para;
-                float.TryParse(txtDebLim.Text, out para);
+                float .TryParse(txtDebLim.Text, out var para);
                 int delay;
                 int.TryParse(txtDelayLim.Text, out delay);
-                var condition = new Condition(++Program.MAXCONDITIONID, _tag.Name, 1, 4, 0, 0, true, para, delay);
+                var condition = new Condition(++Program.MAXCONDITIONID, _tag.TagName, 1, 4, 0, 0, true, para, delay);
                 if (chkLOLO.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThLOLO.Text, out thr);
-                    var sub = new SubCondition(true, cboLOLO.SelectedIndex, condition.TypeId, 1, thr, txtMsgLOLO.Text);
+                    decimal.TryParse(txtThLOLO.Text, out var thr);
+                    var sub = new SubCondition(true, cboLOLO.SelectedIndex, condition.TypeID, 1, thr, txtMsgLOLO.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
                 if (chkLO.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThLO.Text, out thr);
-                    var sub = new SubCondition(true, cboLO.SelectedIndex, condition.TypeId, 2, thr, txtMsgLO.Text);
+                    decimal.TryParse(txtThLO.Text, out var thr);
+                    var sub = new SubCondition(true, cboLO.SelectedIndex, condition.TypeID, 2, thr, txtMsgLO.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
                 if (chkHI.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThHI.Text, out thr);
-                    var sub = new SubCondition(true, cboHI.SelectedIndex, condition.TypeId, 4, thr, txtMsgHI.Text);
+                    decimal.TryParse(txtThHI.Text, out var thr);
+                    var sub = new SubCondition(true, cboHI.SelectedIndex, condition.TypeID, 4, thr, txtMsgHI.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
                 if (chkHIHI.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThHIHI.Text, out thr);
-                    var sub = new SubCondition(true, cboHIHI.SelectedIndex, condition.TypeId, 8, thr, txtMsgHIHI.Text);
+                    decimal.TryParse(txtThHIHI.Text, out var thr);
+                    var sub = new SubCondition(true, cboHIHI.SelectedIndex, condition.TypeID, 8, thr, txtMsgHIHI.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
@@ -232,26 +227,22 @@ namespace TagConfig
             }
             if (chkMajDev.Checked || chkMinDev.Checked)
             {
-                float para;
-                float.TryParse(txtParaDev.Text, out para);
-                float deb;
-                float.TryParse(txtDebDev.Text, out deb);
+                float .TryParse(txtParaDev.Text, out var para);
+                float .TryParse(txtDebDev.Text, out var deb);
                 int delay;
                 int.TryParse(txtDelayDev.Text, out delay);
-                var condition = new Condition(++Program.MAXCONDITIONID, _tag.Name, 2, 4, rdValue.Checked ? (byte)0 : (byte)1, para, true, deb, delay);
+                var condition = new Condition(++Program.MAXCONDITIONID, _tag.TagName, 2, 4, rdValue.Checked ? (byte)0 : (byte)1, para, true, deb, delay);
                 if (chkMajDev.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThMajDev.Text, out thr);
-                    var sub = new SubCondition(true, cboMajDev.SelectedIndex, condition.TypeId, 16, thr, txtMsgMaj.Text);
+                    decimal.TryParse(txtThMajDev.Text, out var thr);
+                    var sub = new SubCondition(true, cboMajDev.SelectedIndex, condition.TypeID, 16, thr, txtMsgMaj.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
                 if (chkMinDev.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThMinDev.Text, out thr);
-                    var sub = new SubCondition(true, cboMinDev.SelectedIndex, condition.TypeId, 32, thr, txtMsgMin.Text);
+                    decimal.TryParse(txtThMinDev.Text, out var thr);
+                    var sub = new SubCondition(true, cboMinDev.SelectedIndex, condition.TypeID, 32, thr, txtMsgMin.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
@@ -260,24 +251,21 @@ namespace TagConfig
             }
             if (chkHIRt.Checked || chkLORt.Checked)
             {
-                float deb;
-                float.TryParse(txtDebRt.Text, out deb);
+                float .TryParse(txtDebRt.Text, out var deb);
                 int delay;
                 int.TryParse(txtDelayRt.Text, out delay);
-                var condition = new Condition(++Program.MAXCONDITIONID, _tag.Name, 3, 4, 0, 0, true, deb, delay);
+                var condition = new Condition(++Program.MAXCONDITIONID, _tag.TagName, 3, 4, 0, 0, true, deb, delay);
                 if (chkHIRt.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThHIRt.Text, out thr);
-                    var sub = new SubCondition(true, cboHIRt.SelectedIndex, condition.TypeId, 256, thr, txtMsgHIRt.Text);
+                    decimal.TryParse(txtThHIRt.Text, out var thr);
+                    var sub = new SubCondition(true, cboHIRt.SelectedIndex, condition.TypeID, 256, thr, txtMsgHIRt.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
                 if (chkLORt.Checked)
                 {
-                    float thr;
-                    float.TryParse(txtThLORt.Text, out thr);
-                    var sub = new SubCondition(true, cboLORt.SelectedIndex, condition.TypeId, 512, thr, txtMsgLORt.Text);
+                    decimal.TryParse(txtThLORt.Text, out var thr);
+                    var sub = new SubCondition(true, cboLORt.SelectedIndex, condition.TypeID, 512, thr, txtMsgLORt.Text);
                     condition.SubConditions.Add(sub);
                     _subconds.Add(sub);
                 }
@@ -288,8 +276,8 @@ namespace TagConfig
             {
                 int delay;
                 int.TryParse(txtDelayDig.Text, out delay);
-                var condition = new Condition(++Program.MAXCONDITIONID, _tag.Name, 4, 4, 0, 0, true, 0, delay);
-                var sub = new SubCondition(true, cboDig.SelectedIndex, condition.TypeId, 64, rdDig.Checked ? 1 : 0, txtMsgDig.Text);
+                var condition = new Condition(++Program.MAXCONDITIONID, _tag.TagName, 4, 4, 0, 0, true, 0, delay);
+                var sub = new SubCondition(true, cboDig.SelectedIndex, condition.TypeID, 64, rdDig.Checked ? 1 : 0, txtMsgDig.Text);
                 condition.SubConditions.Add(sub);
                 _conditions.Add(condition);
                 _subconds.Add(sub);
@@ -299,8 +287,8 @@ namespace TagConfig
             {
                 int delay;
                 int.TryParse(txtDelayQua.Text, out delay);
-                var condition = new Condition(++Program.MAXCONDITIONID, _tag.Name, 5, 4, 0, 0, true, 0, delay);
-                var sub = new SubCondition(true, cboQua.SelectedIndex, condition.TypeId, 128, 0, txtMsgQua.Text);
+                var condition = new Condition(++Program.MAXCONDITIONID, _tag.TagName, 5, 4, 0, 0, true, 0, delay);
+                var sub = new SubCondition(true, cboQua.SelectedIndex, condition.TypeID, 128, 0, txtMsgQua.Text);
                 condition.SubConditions.Add(sub);
                 _conditions.Add(condition);
                 _subconds.Add(sub);
@@ -309,11 +297,11 @@ namespace TagConfig
         }
 
 
-        List<Condition> GetCondition(TagData tag)
+        List<Condition> GetCondition(Tag tag)
         {
             List<Condition> condList = new List<Condition>();
             if (_conditions == null || tag == null) return condList;
-            string id = tag.Name;
+            string id = tag.TagName;
             foreach (var cond in _conditions)
             {
                 if (cond.Source == id)
@@ -322,17 +310,17 @@ namespace TagConfig
             return condList;
         }
 
-        int RemoveCondition(TagData tag)
+        int RemoveCondition(Tag tag)
         {
             if (_conditions == null || tag == null) return -1;
-            string id = tag.Name;
+            string id = tag.TagName;
             for (int i = _conditions.Count - 1; i >= 0; i--)
             {
                 if (_conditions[i].Source == id)
                 {
                     for (int j = _subconds.Count - 1; j >= 0; j--)
                     {
-                        if (_subconds[j].ConditionId == _conditions[i].TypeId)
+                        if (_subconds[j].ConditionID == _conditions[i].TypeID)
                         {
                             _subconds.RemoveAt(j);
                         }

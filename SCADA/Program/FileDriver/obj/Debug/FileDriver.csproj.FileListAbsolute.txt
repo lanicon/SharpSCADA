@@ -1,0 +1,9 @@
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\bin\Debug\FileDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\bin\Debug\FileDriver.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\bin\Debug\DataService.dll
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\bin\Debug\DataService.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\obj\Debug\FileDriver.csprojAssemblyReference.cache
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\obj\Debug\FileDriver.csproj.CoreCompileInputs.cache
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\obj\Debug\FileDriver.csproj.CopyComplete
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\obj\Debug\FileDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\FileDriver\obj\Debug\FileDriver.pdb

@@ -1,0 +1,9 @@
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\bin\Debug\ModbusDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\bin\Debug\ModbusDriver.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\bin\Debug\DataService.dll
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\bin\Debug\DataService.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\obj\Debug\ModbusDriver.csprojAssemblyReference.cache
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\obj\Debug\ModbusDriver.csproj.CoreCompileInputs.cache
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\obj\Debug\ModbusDriver.csproj.CopyComplete
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\obj\Debug\ModbusDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\ModbusDriver\obj\Debug\ModbusDriver.pdb

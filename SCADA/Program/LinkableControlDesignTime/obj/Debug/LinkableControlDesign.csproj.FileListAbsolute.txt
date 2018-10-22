@@ -1,0 +1,13 @@
+F:\GitHub\SharpSCADA\SCADA\Program\HMIControl\bin\Debug\HMIControl.VisualStudio.Design.dll
+F:\GitHub\SharpSCADA\SCADA\Program\HMIControl\bin\Debug\HMIControl.VisualStudio.Design.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\LinkableControlDesign.csprojAssemblyReference.cache
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.Properties.Resources.resources
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.TagComplexEditor.resources
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.TagList.resources
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.TagWindowEditor.resources
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.TagWriteEditor.resources
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\LinkableControlDesign.csproj.GenerateResource.cache
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\LinkableControlDesign.csproj.CoreCompileInputs.cache
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\LinkableControlDesign.csproj.CopyComplete
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.dll
+F:\GitHub\SharpSCADA\SCADA\Program\LinkableControlDesignTime\obj\Debug\HMIControl.VisualStudio.Design.pdb

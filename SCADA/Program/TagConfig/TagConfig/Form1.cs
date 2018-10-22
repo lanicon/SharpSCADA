@@ -24,14 +24,14 @@ namespace TagConfig
         short curgroupId = 0;
         List<Driver> devices = new List<Driver>();
         List<Group> groups = new List<Group>();
-        List<TagData> list = new List<TagData>();
+        List<Tag> list = new List<Tag>();
         //List<short> indexList = new List<short>();
-        List<Scaling> scaleList = new List<Scaling>();
+        List<Scale> scaleList = new List<Scale>();
         List<Condition> conditions = new List<Condition>();
         List<SubCondition> subConds = new List<SubCondition>();
-        List<TagData> selectedTags = new List<TagData>();
-        List<DataTypeSource1> typeList = new List<DataTypeSource1>();
-        List<DriverArgumet> arguments = new List<DriverArgumet>();
+        List<Tag> selectedTags = new List<Tag>();
+        List<RegisterModule> typeList = new List<RegisterModule>();
+        List<Argument> arguments = new List<Argument>();
 
         SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
@@ -65,139 +65,283 @@ namespace TagConfig
             list.Clear();
             //subConds.Clear();
             majorTop.Nodes.Clear();
-            string sql = "SELECT DriverID,DriverType,DriverName FROM META_DRIVER;";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            string sql = "SELECT DriverID,DriverType,DriverName FROM DRIVER;";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        Driver device = new Driver(reader.GetInt16(0), reader.GetInt32(1), reader.GetString(2));
+            //        devices.Add(device);
+            //        majorTop.Nodes.Add(device.DriverID.ToString(), device.DriverName, 1, 1);
+            //    }
+            //}
+
+            using (var db = DataAccess.DatabaseObjects.GetInstance())
             {
-                while (reader.Read())
+                try
                 {
-                    Driver device = new Driver(reader.GetInt16(0), reader.GetInt32(1), reader.GetString(2));
-                    devices.Add(device);
-                    majorTop.Nodes.Add(device.ID.ToString(), device.Name, 1, 1);
-                }
-            }
-            foreach (TreeNode node in majorTop.Nodes)
-            {
-                sql = string.Format("SELECT GroupID,DriverID,GroupName,UpdateRate,DeadBand,IsActive FROM META_GROUP WHERE DriverID={0};", node.Name);
-                using (var reader = DataHelper.Instance.ExecuteReader(sql))
-                {
-                    while (reader.Read())
+                    devices = db.Queryable<Driver>().ToList();
+                    foreach (var device in devices)
                     {
-                        Group group = new Group(reader.GetInt16(0), reader.GetInt16(1), reader.GetString(2), reader.GetInt32(3), reader.GetFloat(4), reader.GetBoolean(5));
-                        groups.Add(group);
-                        node.Nodes.Add(group.ID.ToString(), group.Name, 2, 2);
+                        majorTop.Nodes.Add(device.DriverID.ToString(), device.DriverName, 1, 1);
+
                     }
                 }
-            }
-            sql = "SELECT TagID,GroupID,TagName,Address,DataType,DataSize,IsActive,"
-                + "(SELECT COUNT(1) FROM Meta_Condition WHERE Source=t.TagName) HasAlarm," +
-                "(SELECT COUNT(1) FROM Meta_Scale WHERE ScaleID=t.TagID) HasScale,"
-                + "Archive,DefaultValue,Description,Maximum,Minimum,Cycle FROM Meta_Tag t WHERE DataType<12";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+                catch (Exception e)
                 {
-                    TagData tag = new TagData(reader.GetInt16(0), reader.GetInt16(1), reader.GetString(2), reader.GetString(3), reader.GetByte(4),
-                        (ushort)reader.GetInt16(5), reader.GetBoolean(6), reader.GetInt32(7) > 0, reader.GetInt32(8) > 0, reader.GetBoolean(9),
-                        reader.GetValue(10), reader.GetNullableString(11), reader.GetFloat(12), reader.GetFloat(13), reader.GetInt32(14));
-                    list.Add(tag);
+                    Console.WriteLine(e);
+                    
                 }
-            }
-            sql = "SELECT TypeID,Source,AlarmType,EventType,ConditionType,Para,IsEnabled,Deadband,Delay,Comment FROM Meta_Condition";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+
+                try
                 {
-                    Condition cond = new Condition(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetByte(3), reader.GetByte(4), reader.GetFloat(5),
-                       reader.GetBoolean(6), reader.GetFloat(7), reader.GetInt32(8), reader.GetNullableString(9));
-                    conditions.Add(cond);
+                    groups = db.Queryable<Group>().ToList();
+                    foreach (TreeNode node in majorTop.Nodes)
+                    {
+                        foreach (var group in groups)
+                        {
+                            node.Nodes.Add(group.GroupID.ToString(), group.GroupName, 2, 2);
+                        }
+
+                    }
                 }
-            }
-            sql = "SELECT IsEnable,Severity,ConditionID,SubAlarmType,Threshold,Message FROM Meta_SubCondition";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+                catch (Exception e)
                 {
-                    SubCondition sub = new SubCondition(reader.GetBoolean(0), reader.GetByte(1), reader.GetInt32(2), reader.GetInt32(3),
-                        reader.GetFloat(4), reader.IsDBNull(5) ? null : reader.GetString(5));
-                    subConds.Add(sub);
+                    Console.WriteLine(e);
+                    
                 }
-            }
-            sql = "SELECT ScaleID,ScaleType,EUHI,EULO,RAWHI,RAWLO FROM Meta_Scale";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+
+
+                try
                 {
-                    Scaling scale = new Scaling(reader.GetInt16(0), reader.GetByte(1), reader.GetFloat(2), reader.GetFloat(3),
-                        reader.GetFloat(4), reader.GetFloat(5));
-                    scaleList.Add(scale);
+
+                    list = db.Queryable<Tag>().ToList();
                 }
-            }
-            sql = "SELECT DRIVERID,ISNULL(Description,CLASSNAME),AssemblyName,ClassFullName FROM RegisterModule";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+                catch (Exception e)
                 {
-                    typeList.Add(new DataTypeSource1(reader.GetInt32(0), reader.GetString(1), reader.GetNullableString(2), reader.GetNullableString(3)));
+                    Console.WriteLine(e);
+                    //throw;
                 }
-            }
-            sql = "SELECT DriverID,PropertyName,PropertyValue FROM Argument";
-            using (var reader = DataHelper.Instance.ExecuteReader(sql))
-            {
-                while (reader.Read())
+
+                try
                 {
-                    arguments.Add(new DriverArgumet(reader.GetInt16(0), reader.GetString(1), reader.GetNullableString(2)));
+                    conditions = db.Queryable<Condition>().ToList();
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    
+                }
+
+                try
+                {
+                    subConds = db.Queryable<SubCondition>().ToList();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    
+                }
+                try
+                {
+                    scaleList = db.Queryable<Scale>().ToList();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+
+                try
+                {
+                    typeList = db.Queryable<RegisterModule>().ToList();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+
+                try
+                {
+                    arguments = db.Queryable<Argument>().ToList();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+           
+                }
+
             }
+
+
+
+            //foreach (TreeNode node in majorTop.Nodes)
+            //{
+            //    sql = string.Format("SELECT GroupID,DriverID,GroupName,UpdateRate,DeadBand,IsActive FROM [GROUP] WHERE DriverID={0};", node.Name);
+            //    using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //    {
+            //        while (reader.Read())
+            //        {
+            //            Group group = new Group(reader.GetInt16(0), reader.GetInt16(1), reader.GetString(2), reader.GetInt32(3), reader.GetFloat(4), reader.GetBoolean(5));
+            //            //groups.Add(group);
+            //            //node.Nodes.Add(group.GroupID.ToString(), group.GroupName, 2, 2);
+            //        }
+            //    }
+            //}
+            //sql = "SELECT TagID,GroupID,TagName,Address,DataType,DataSize,IsActive,"
+            //      + "(SELECT COUNT(1) FROM Condition WHERE Source=t.TagName) HasAlarm," 
+            //      + "(SELECT COUNT(1) FROM Scale WHERE ScaleID=t.TagID) HasScale,"
+            //      + "Archive,DefaultValue,Description,Maximum,Minimum,Cycle FROM Tag t WHERE DataType<12";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        Tag tag = new Tag(reader.GetInt16(0), reader.GetInt16(1), reader.GetString(2), reader.GetString(3), reader.GetByte(4),
+            //            reader.GetInt16(5), reader.GetBoolean(6), reader.GetInt32(7) > 0, reader.GetInt32(8) > 0, reader.GetBoolean(9),
+            //            reader.GetValue(10), reader.GetNullableString(11), reader.GetFloat(12), reader.GetFloat(13), reader.GetInt32(14));
+            //        list.Add(tag);
+            //    }
+            //}
+            //sql = "SELECT TypeID,Source,AlarmType,EventType,ConditionType,Para,IsEnabled,Deadband,Delay,Comment FROM Condition";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        Condition cond = new Condition(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetByte(3), reader.GetByte(4), reader.GetFloat(5),
+            //           reader.GetBoolean(6), reader.GetFloat(7), reader.GetInt32(8), reader.GetNullableString(9));
+            //        conditions.Add(cond);
+            //    }
+            //}
+
+            //sql = "SELECT IsEnable,Severity,ConditionID,SubAlarmType,Threshold,Message FROM SubCondition";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        SubCondition sub = new SubCondition(reader.GetBoolean(0), reader.GetByte(1), reader.GetInt32(2), reader.GetInt32(3),
+            //            reader.GetDecimal(4), reader.IsDBNull(5) ? null : reader.GetString(5));
+            //        subConds.Add(sub);
+            //    }
+            //}
+            //sql = "SELECT ScaleID,ScaleType,EUHI,EULO,RAWHI,RAWLO FROM Scale";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        Scale scale = new Scale(reader.GetInt16(0), reader.GetByte(1), reader.GetFloat(2), reader.GetFloat(3),
+            //            reader.GetFloat(4), reader.GetFloat(5));
+            //        scaleList.Add(scale);
+            //    }
+            //}
+            //sql = "SELECT DRIVERID,ISNULL(Description,CLASSNAME),AssemblyName,ClassFullName FROM RegisterModule";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        typeList.Add(new RegisterModule(reader.GetInt32(0), reader.GetString(1), reader.GetNullableString(2), reader.GetNullableString(3)));
+            //    }
+            //}
+            //sql = "SELECT DriverID,PropertyName,PropertyValue FROM Argument";
+            //using (var reader = DataHelper.Instance.ExecuteReader(sql))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        arguments.Add(new Argument(reader.GetInt16(0), reader.GetString(1), reader.GetNullableString(2)));
+            //    }
+            //}
             list.Sort();
             //conditions.Sort();
             subConds.Sort();
             scaleList.Sort();
+            //foreach (Condition condition in conditions)
+            //{
+            //    if (condition.EventType != 4) continue;
+            //    var subs = subConds.Where(s => s.ConditionID == condition.TypeID).ToList();
+            //    condition.SubConditions.AddRange(subs);
+
+            //    int condId = condition.TypeID;
+            //    int index = subConds.BinarySearch(new SubCondition(condId));
+            //    if (index < 0) break;
+            //    SubCondition sub = subConds[index];
+            //    int ind1 = index - 1;
+            //    while (sub.ConditionID == condId)
+            //    {
+            //        condition.SubConditions.Add(sub);
+            //        if (++index < subConds.Count)
+            //        {
+            //            sub = subConds[index];
+            //        }
+            //        else
+            //            break;
+            //    }
+            //    while (ind1 >= 0)
+            //    {
+            //        sub = subConds[ind1--];
+            //        if (sub.ConditionID == condId)
+            //            condition.SubConditions.Add(sub);
+            //    }
+            //}
+            //var obj = DataHelper.Instance.ExecuteScalar("SELECT MAX(TypeID) FROM Condition");
+            //if (obj != DBNull.Value) Program.MAXCONDITIONID = Convert.ToInt32(obj);
+
+
             foreach (Condition condition in conditions)
             {
                 if (condition.EventType != 4) continue;
-                int condId = condition.TypeId;
-                int index = subConds.BinarySearch(new SubCondition(condId));
-                if (index < 0) break;
-                SubCondition sub = subConds[index];
-                int ind1 = index - 1;
-                while (sub.ConditionId == condId)
-                {
-                    condition.SubConditions.Add(sub);
-                    if (++index < subConds.Count)
-                    {
-                        sub = subConds[index];
-                    }
-                    else
-                        break;
-                }
-                while (ind1 >= 0)
-                {
-                    sub = subConds[ind1--];
-                    if (sub.ConditionId == condId)
-                        condition.SubConditions.Add(sub);
-                }
+                var subs = subConds.Where(s => s.ConditionID == condition.TypeID).ToList();
+                condition.SubConditions.AddRange(subs);
+
+                
             }
-            var obj = DataHelper.Instance.ExecuteScalar("SELECT MAX(TypeID) FROM Meta_Condition");
-            if (obj != DBNull.Value) Program.MAXCONDITIONID = Convert.ToInt32(obj);
+            
+            Program.MAXCONDITIONID = conditions.Max(s => s.TypeID);
+
+
             start = true;
         }
 
         private bool Save()
         {
+
+            using (var db = DataAccess.DatabaseObjects.GetInstance())
+            {
+                try
+                {
+                    db.Deleteable<Driver>();
+                    db.Insertable<Driver>(devices);
+                    db.Insertable<Group>(groups);
+
+
+                    devices = db.Queryable<Driver>().ToList();
+                    foreach (var device in devices)
+                    {
+                        majorTop.Nodes.Add(device.DriverID.ToString(), device.DriverName, 1, 1);
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+            }
+
             //dataGridView1.CurrentCell = null;
-            //bindingSource1.EndEdit();
-            bool result = true;
-            string sql = "DELETE FROM Meta_Driver;DELETE FROM Meta_Group;";
+                //bindingSource1.EndEdit();
+                bool result = true;
+            string sql = "DELETE FROM Driver;DELETE FROM [GROUP];";
             foreach (Driver device in devices)
             {
-                sql = string.Concat(sql, string.Format("INSERT INTO Meta_Driver(DriverID,DriverName,DriverType)"
+                sql = string.Concat(sql, string.Format("INSERT INTO Driver(DriverID,DriverName,DriverType)"
                 + " VALUES({0},'{1}',{2});",
-                    device.ID, device.Name, device.DeviceDriver));
+                    device.DriverID, device.DriverName, device.DriverType));
                 if (device.Target != null)
                 {
                     for (int i = arguments.Count - 1; i >= 0; i--)
                     {
-                        if (arguments[i].DriverID == device.ID)
+                        if (arguments[i].DriverID == device.DriverID)
                             arguments.RemoveAt(i);
                     }
                     var type = device.Target.GetType();
@@ -206,7 +350,7 @@ namespace TagConfig
                         if (prop.CanWrite)
                         {
                             var value = prop.GetValue(device.Target, null);
-                            var item = new DriverArgumet(device.ID, prop.Name, value == null ? null : value.ToString());
+                            var item = new Argument(device.DriverID, prop.Name, value == null ? null : value.ToString());
                             arguments.Add(item);
                         }
                     }
@@ -214,19 +358,21 @@ namespace TagConfig
             }
             foreach (Group grp in groups)
             {
-                sql = string.Concat(sql, string.Format("INSERT INTO Meta_Group(GroupID,GroupName,DriverID,UpdateRate,DeadBand,IsActive) VALUES({0},'{1}',{2},{3},{4},'{5}');",
-                    grp.ID, grp.Name, grp.DriverID, grp.UpdateRate, grp.DeadBand, grp.Active));
+                sql = string.Concat(sql, string.Format("INSERT INTO [GROUP](GroupID,GroupName,DriverID,UpdateRate,DeadBand,IsActive) VALUES({0},'{1}',{2},{3},{4},'{5}');",
+                    grp.GroupID, grp.GroupName, grp.DriverID, grp.UpdateRate, grp.DeadBand, grp.IsActive));
             }
+
+
             TagDataReader reader = new TagDataReader(list);
             ConditionReader condReader = new ConditionReader(conditions);
             SubConditionReader subReader = new SubConditionReader(subConds);
             ScaleReader scalereader = new ScaleReader(scaleList);
             ArgumentReader argumentreader = new ArgumentReader(arguments);
             result &= DataHelper.Instance.ExecuteNonQuery(sql) >= 0;
-            result &= DataHelper.Instance.BulkCopy(reader, "Meta_Tag", "DELETE FROM Meta_Tag", SqlBulkCopyOptions.KeepIdentity);
-            result &= DataHelper.Instance.BulkCopy(condReader, "Meta_Condition", "DELETE FROM Meta_Condition", SqlBulkCopyOptions.KeepIdentity);
-            result &= DataHelper.Instance.BulkCopy(subReader, "Meta_SubCondition", "DELETE FROM Meta_SubCondition", SqlBulkCopyOptions.KeepIdentity);
-            result &= DataHelper.Instance.BulkCopy(scalereader, "Meta_Scale", "DELETE FROM Meta_Scale", SqlBulkCopyOptions.KeepIdentity);
+            result &= DataHelper.Instance.BulkCopy(reader, "Tag", "DELETE FROM Tag", SqlBulkCopyOptions.KeepIdentity);
+            result &= DataHelper.Instance.BulkCopy(condReader, "Condition", "DELETE FROM Condition", SqlBulkCopyOptions.KeepIdentity);
+            result &= DataHelper.Instance.BulkCopy(subReader, "SubCondition", "DELETE FROM SubCondition", SqlBulkCopyOptions.KeepIdentity);
+            result &= DataHelper.Instance.BulkCopy(scalereader, "Scale", "DELETE FROM Scale", SqlBulkCopyOptions.KeepIdentity);
             result &= DataHelper.Instance.BulkCopy(argumentreader, "Argument", "DELETE FROM Argument");
             return result;
         }
@@ -256,14 +402,14 @@ namespace TagConfig
                                         Driver device = new Driver();
                                         if (reader.MoveToAttribute("id"))
                                         {
-                                            device.ID = short.Parse(reader.Value);
+                                            device.DriverID = short.Parse(reader.Value);
                                         }
                                         if (reader.MoveToAttribute("name"))
                                         {
-                                            device.Name = reader.Value;
+                                            device.DriverName = reader.Value;
                                         }
                                         devices.Add(device);
-                                        majorTop.Nodes.Add(device.ID.ToString(), device.Name, 1, 1);
+                                        majorTop.Nodes.Add(device.DriverID.ToString(), device.DriverName, 1, 1);
                                     }
                                     break;
                                 case "Group":
@@ -271,11 +417,11 @@ namespace TagConfig
                                         Group grp = new Group();
                                         if (reader.MoveToAttribute("id"))
                                         {
-                                            grp.ID = short.Parse(reader.Value);
+                                            grp.GroupID = short.Parse(reader.Value);
                                         }
                                         if (reader.MoveToAttribute("name"))
                                         {
-                                            grp.Name = reader.Value;
+                                            grp.GroupName = reader.Value;
                                         }
                                         if (reader.MoveToAttribute("deviceId"))
                                         {
@@ -291,22 +437,22 @@ namespace TagConfig
                                         }
                                         if (reader.MoveToAttribute("active"))
                                         {
-                                            grp.Active = bool.Parse(reader.Value);
+                                            grp.IsActive = bool.Parse(reader.Value);
                                         }
                                         groups.Add(grp);
                                         TreeNode[] nodes = majorTop.Nodes.Find(grp.DriverID.ToString(), true);
                                         if (nodes != null && nodes.Length > 0)
                                         {
-                                            nodes[0].Nodes.Add(grp.ID.ToString(), grp.Name, 2, 2);
+                                            nodes[0].Nodes.Add(grp.GroupID.ToString(), grp.GroupName, 2, 2);
                                         }
                                     }
                                     break;
                                 case "Tag":
                                     {
-                                        TagData tag = new TagData(0, string.Empty);
+                                        Tag tag = new Tag(0, string.Empty);
                                         if (reader.MoveToAttribute("id"))
                                         {
-                                            tag.ID = short.Parse(reader.Value);
+                                            tag.TagID = short.Parse(reader.Value);
                                         }
                                         if (reader.MoveToAttribute("groupid"))
                                         {
@@ -314,7 +460,7 @@ namespace TagConfig
                                         }
                                         if (reader.MoveToAttribute("name"))
                                         {
-                                            tag.Name = reader.Value;
+                                            tag.TagName = reader.Value;
                                         }
                                         if (reader.MoveToAttribute("address"))
                                         {
@@ -326,11 +472,11 @@ namespace TagConfig
                                         }
                                         if (reader.MoveToAttribute("size"))
                                         {
-                                            tag.Size = ushort.Parse(reader.Value);
+                                            tag.DataSize = short.Parse(reader.Value);
                                         }
                                         if (reader.MoveToAttribute("active"))
                                         {
-                                            tag.Active = bool.Parse(reader.Value);
+                                            tag.IsActive = bool.Parse(reader.Value);
                                         }
                                         if (reader.MoveToAttribute("value"))
                                         {
@@ -364,35 +510,35 @@ namespace TagConfig
                 foreach (Driver device in devices)
                 {
                     writer.WriteStartElement("Device");
-                    writer.WriteAttributeString("id", device.ID.ToString());
-                    writer.WriteAttributeString("name", device.Name);
+                    writer.WriteAttributeString("id", device.DriverID.ToString());
+                    writer.WriteAttributeString("name", device.DriverName);
                     foreach (Group grp in groups)
                     {
-                        if (grp.DriverID != device.ID)
+                        if (grp.DriverID != device.DriverID)
                             continue;
                         writer.WriteStartElement("Group");
-                        writer.WriteAttributeString("id", grp.ID.ToString());
-                        writer.WriteAttributeString("name", grp.Name);
+                        writer.WriteAttributeString("id", grp.GroupID.ToString());
+                        writer.WriteAttributeString("name", grp.GroupName);
                         writer.WriteAttributeString("deviceId", grp.DriverID.ToString());
                         writer.WriteAttributeString("updateRate", grp.UpdateRate.ToString());
                         writer.WriteAttributeString("deadBand", grp.DeadBand.ToString());
-                        writer.WriteAttributeString("active", grp.Active.ToString());
-                        short grpId = grp.ID;
-                        int index = list.BinarySearch(new TagData(grpId, null));
+                        writer.WriteAttributeString("active", grp.IsActive.ToString());
+                        short grpId = grp.GroupID;
+                        int index = list.BinarySearch(new Tag(grpId, null));
                         if (index < 0) index = ~index;
                         if (index < list.Count)
                         {
-                            TagData tag = list[index];
+                            Tag tag = list[index];
                             while (tag.GroupID == grpId)
                             {
                                 writer.WriteStartElement("Tag");
-                                writer.WriteAttributeString("id", tag.ID.ToString());
+                                writer.WriteAttributeString("id", tag.TagID.ToString());
                                 writer.WriteAttributeString("groupid", tag.GroupID.ToString());
-                                writer.WriteAttributeString("name", tag.Name);
+                                writer.WriteAttributeString("name", tag.TagName);
                                 writer.WriteAttributeString("address", tag.Address);
                                 writer.WriteAttributeString("datatype", tag.DataType.ToString());
-                                writer.WriteAttributeString("size", tag.Size.ToString());
-                                writer.WriteAttributeString("active", tag.Active.ToString());
+                                writer.WriteAttributeString("size", tag.DataSize.ToString());
+                                writer.WriteAttributeString("active", tag.IsActive.ToString());
                                 if (tag.DefaultValue != null)
                                     writer.WriteAttributeString("value", tag.DefaultValue.ToString());
                                 if (!string.IsNullOrEmpty(tag.Description))
@@ -435,10 +581,10 @@ namespace TagConfig
                                 var name = aryline[2];
                                 var address = aryline[3];
                                 var type = Convert.ToByte(aryline[4]);
-                                var size = Convert.ToUInt16(aryline[5]);
+                                var size = Convert.ToInt16(aryline[5]);
                                 var active = Convert.ToBoolean(aryline[6]);
                                 var desp = aryline[7];
-                                TagData tag = new TagData(id, groupid, name, address, type, size, active, false, false, false, null, desp, 0, 0, 0);
+                                Tag tag = new Tag(id, groupid, name, address, type, size, active, false, false, false, null, desp, 0, 0, 0);
                                 list.Add(tag);
                             }
                             catch (Exception err)
@@ -460,14 +606,14 @@ namespace TagConfig
             Worksheet sheet = (Worksheet)book.Sheets[1];
             //list.Clear();
             Dictionary<string, byte> dic = new Dictionary<string, byte>() { { "Bool", 1 }, { "SInt", 3 }, { "Word", 4 }, { "DInt", 7 }, { "Int", 4 }, { "Real", 8 }, { "String", 11 }, };
-            short maxid = list.Count == 0 ? (short)1 : list.Max(x => x.ID);
+            short maxid = list.Count == 0 ? (short)1 : list.Max(x => x.TagID);
             for (int i = 2; i < sheet.Rows.Count; i++)
             {
                 if (((Range)sheet.Cells[i, 2]).Value2 == null)
                     break;
                 try
                 {
-                    TagData tag = new TagData(++maxid, curgroupId, ((Range)sheet.Cells[i, 1]).Value2.ToString(), ((Range)sheet.Cells[i, 5]).Value2.ToString().TrimStart('%'),
+                    Tag tag = new Tag(++maxid, curgroupId, ((Range)sheet.Cells[i, 1]).Value2.ToString(), ((Range)sheet.Cells[i, 5]).Value2.ToString().TrimStart('%'),
                         dic[((Range)sheet.Cells[i, 3]).Value2.ToString()], Convert.ToUInt16(((Range)sheet.Cells[i, 4]).Value2),
                          true, false, false, false, null, Convert.ToString(((Range)sheet.Cells[i, 6]).Value2), 0, 0, 0);
                     list.Add(tag);
@@ -491,7 +637,7 @@ namespace TagConfig
             Worksheet sheet = (Worksheet)book.Sheets[1];
             //list.Clear();
             Dictionary<string, byte> dic = new Dictionary<string, byte>() { { "Boolean", 1 }, { "Byte", 3 }, { "Short", 4 }, { "Word", 5 }, { "DWord", 6 }, { "Long ", 7 }, { "Float", 8 }, { "String", 11 }, };
-            short maxid = list.Count == 0 ? (short)1 : list.Max(x => x.ID);
+            short maxid = list.Count == 0 ? (short)1 : list.Max(x => x.TagID);
             for (int i = 2; i < sheet.Rows.Count; i++)
             {
                 var name = ((Range)sheet.Cells[i, 1]).Value2;
@@ -500,8 +646,8 @@ namespace TagConfig
                 try
                 {
                     var type = dic[((Range)sheet.Cells[i, 3]).Value2.ToString()];
-                    TagData tag = new TagData(++maxid, curgroupId, name, ((Range)sheet.Cells[i, 2]).Value2.ToString().TrimStart('%'),
-                        type, (ushort)(type < 4 ? 1 : type < 6 ? 2 : type < 11 ? 4 : 255),
+                    Tag tag = new Tag(++maxid, curgroupId, name, ((Range)sheet.Cells[i, 2]).Value2.ToString().TrimStart('%'),
+                        type, (short)(type < 4 ? 1 : type < 6 ? 2 : type < 11 ? 4 : 255),
                          true, false, false, false, null, Convert.ToString(((Range)sheet.Cells[i, 16]).Value2), 0, 0, 0);
                     list.Add(tag);
                     //bindingSource1.Add(tag);
@@ -527,7 +673,7 @@ namespace TagConfig
             Excel.Application app = new Excel.Application();
             Workbook book = app.Workbooks.Open(file);
             Worksheet sheet = (Worksheet)book.Sheets[1];
-            short maxid = list.Max(x => x.ID);
+            short maxid = list.Max(x => x.TagID);
             for (int i = 2; i < sheet.Rows.Count; i++)
             {
                 if (((Range)sheet.Cells[i, 1]).Value2 == null)
@@ -537,12 +683,12 @@ namespace TagConfig
                     string name = ((Range)sheet.Cells[i, 2]).Value2.Trim('"');
                     string digit = "." + ((Range)sheet.Cells[i, 7]).Value2.ToString();
                     string name1 = "";
-                    int index = list.BinarySearch(new TagData(curgroupId, name));
+                    int index = list.BinarySearch(new Tag(curgroupId, name));
                     if (index < 0)
                     {
                         for (int j = 0; j < list.Count; j++)
                         {
-                            if (list[j].GroupID == curgroupId && list[j].Name.Contains(((Range)sheet.Cells[i, 6]).Value2.Trim('"')))
+                            if (list[j].GroupID == curgroupId && list[j].TagName.Contains(((Range)sheet.Cells[i, 6]).Value2.Trim('"')))
                             {
                                 index = j; name1 = name;
                                 break;
@@ -550,20 +696,20 @@ namespace TagConfig
                         }
                     }
                     else name1 = name + digit;
-                    TagData _ptag = list[index];
+                    Tag _ptag = list[index];
                     if (!string.IsNullOrEmpty(name))
                     {
                         //var _tag = list.Find((x) => x.Name == name);
-                        TagData _tag = null;
-                        index = list.BinarySearch(new TagData(curgroupId, name1));
+                        Tag _tag = null;
+                        index = list.BinarySearch(new Tag(curgroupId, name1));
                         if (index >= 0) _tag = list[index];
                         if (_tag == null)
                         {
-                            _tag = new TagData(++maxid, curgroupId, name1, _ptag.Address.ToUpper().Replace("DBW", "DBX").Replace("DBD", "DBX") + digit, 1, 1, true, false, false, false, null, "", 0, 0, 0);
+                            _tag = new Tag(++maxid, curgroupId, name1, _ptag.Address.ToUpper().Replace("DBW", "DBX").Replace("DBD", "DBX") + digit, 1, 1, true, false, false, false, null, "", 0, 0, 0);
                             list.Add(_tag);
                         }
                         var condition = new Condition(++Program.MAXCONDITIONID, name1, 4, 4, 0, 0, true, 0, 0);
-                        var sub = new SubCondition(true, severitys[((Range)sheet.Cells[i, 5]).Value2.ToString()], condition.TypeId, 64, 1, ((Range)sheet.Cells[i, 3]).Value2.ToString());
+                        var sub = new SubCondition(true, severitys[((Range)sheet.Cells[i, 5]).Value2.ToString()], condition.TypeID, 64, 1, ((Range)sheet.Cells[i, 3]).Value2.ToString());
                         condition.SubConditions.Add(sub);
                         conditions.Add(condition);
                         subConds.Add(sub);
@@ -582,9 +728,9 @@ namespace TagConfig
         {
             using (StreamWriter objWriter = new StreamWriter(file, false))
             {
-                foreach (TagData tag in list)
+                foreach (Tag tag in list)
                 {
-                    objWriter.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8}", tag.ID, tag.GroupID, tag.Name, tag.Address, tag.DataType, tag.Size, tag.Active, tag.DefaultValue, tag.Description);
+                    objWriter.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8}", tag.TagID, tag.GroupID, tag.TagName, tag.Address, tag.DataType, tag.DataSize, tag.IsActive, tag.DefaultValue, tag.Description);
                 }
             }
         }
@@ -592,7 +738,7 @@ namespace TagConfig
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (!start) return;
-            List<TagData> data = new List<TagData>();
+            List<Tag> data = new List<Tag>();
             switch (e.Node.Level)
             {
                 case 0:
@@ -603,11 +749,11 @@ namespace TagConfig
                         foreach (TreeNode node in e.Node.Nodes)
                         {
                             curgroupId = short.Parse(node.Name);
-                            int index = list.BinarySearch(new TagData(curgroupId, null));
+                            int index = list.BinarySearch(new Tag(curgroupId, null));
                             if (index < 0) index = ~index;
                             if (index < list.Count)
                             {
-                                TagData tag = list[index];
+                                Tag tag = list[index];
                                 while (tag.GroupID == curgroupId)
                                 {
                                     data.Add(tag);
@@ -623,11 +769,11 @@ namespace TagConfig
                 case 2:
                     {
                         curgroupId = short.Parse(e.Node.Name);
-                        int index = list.BinarySearch(new TagData(curgroupId, null));
+                        int index = list.BinarySearch(new Tag(curgroupId, null));
                         if (index < 0) index = ~index;
                         if (index < list.Count)
                         {
-                            TagData tag = list[index];
+                            Tag tag = list[index];
                             while (tag.GroupID == curgroupId)
                             {
                                 data.Add(tag);
@@ -641,7 +787,7 @@ namespace TagConfig
                     }
                     break;
             }
-            bindingSource1.DataSource = new SortableBindingList<TagData>(data);
+            bindingSource1.DataSource = new SortableBindingList<Tag>(data);
             tspCount.Text = data.Count.ToString();
         }
 
@@ -676,23 +822,23 @@ namespace TagConfig
                 {
                     for (int i = 0; i < devices.Count; i++)
                     {
-                        short temp = devices[i].ID;
+                        short temp = devices[i].DriverID;
                         if (temp > did)
                             did = temp;
                     }
                     did++;
-                    devices.Add(new Driver { ID = did });
+                    devices.Add(new Driver { DriverID = did });
                 }
                 else if (node.Level == 1)
                 {
                     for (int i = 0; i < groups.Count; i++)
                     {
-                        short temp = groups[i].ID;
+                        short temp = groups[i].GroupID;
                         if (temp > did)
                             did = temp;
                     }
                     did++;
-                    groups.Add(new Group { ID = did, DriverID = short.Parse(node.Name) });
+                    groups.Add(new Group { GroupID = did, DriverID = short.Parse(node.Name) });
                 }
                 else if (node.Level == 2)
                 {
@@ -729,7 +875,7 @@ namespace TagConfig
                 {
                     foreach (Driver device in devices)
                     {
-                        if (device.ID.ToString() == node.Name)
+                        if (device.DriverID.ToString() == node.Name)
                         {
                             foreach (Group grp in groups)
                             {
@@ -750,7 +896,7 @@ namespace TagConfig
                 {
                     foreach (Group grp in groups)
                     {
-                        if (grp.ID.ToString() == node.Name)
+                        if (grp.GroupID.ToString() == node.Name)
                         {
                             groups.Remove(grp);
                             node.Remove();
@@ -779,22 +925,22 @@ namespace TagConfig
                 {
                     foreach (Driver device in devices)
                     {
-                        if (device.ID.ToString() == e.Node.Name)
+                        if (device.DriverID.ToString() == e.Node.Name)
                         {
-                            device.Name = e.Label;
+                            device.DriverName = e.Label;
                             break;
                         }
                     }
                 }
                 else
                 {
-                    if (!groups.Exists(x => x.Name == e.Label))
+                    if (!groups.Exists(x => x.GroupName == e.Label))
                     {
                         foreach (Group grp in groups)
                         {
-                            if (grp.ID.ToString() == e.Node.Name)
+                            if (grp.GroupID.ToString() == e.Node.Name)
                             {
-                                grp.Name = e.Label;
+                                grp.GroupName = e.Label;
                                 break;
                             }
                         }
@@ -811,12 +957,12 @@ namespace TagConfig
         {
             if (bindingSource1.Count == 0) yield break;
             int index = -1;
-            foreach (TagData tag in bindingSource1.DataSource as IEnumerable<TagData>)
+            foreach (Tag tag in bindingSource1.DataSource as IEnumerable<Tag>)
             {
                 index++;
-                if (string.IsNullOrEmpty(tag.Name))
+                if (string.IsNullOrEmpty(tag.TagName))
                     continue;
-                else if (tag.Name.ToUpper().Contains(filter))
+                else if (tag.TagName.ToUpper().Contains(filter))
                 {
                     yield return index;
                 }
@@ -827,7 +973,7 @@ namespace TagConfig
         {
             if (bindingSource1.Count == 0) yield break;
             int index = -1;
-            foreach (TagData tag in bindingSource1.DataSource as IEnumerable<TagData>)
+            foreach (Tag tag in bindingSource1.DataSource as IEnumerable<Tag>)
             {
                 index++;
                 if (string.IsNullOrEmpty(tag.Description))
@@ -841,7 +987,7 @@ namespace TagConfig
 
         private void AddTag()
         {
-            TagData tag = new TagData((short)(list.Count == 0 ? 1 : list.Max(x => x.ID) + 1), short.Parse(treeView1.SelectedNode.Name), "", "", 1, 1, true, false, false, false, null, "", 0, 0, 0);
+            Tag tag = new Tag((short)(list.Count == 0 ? 1 : list.Max(x => x.TagID) + 1), short.Parse(treeView1.SelectedNode.Name), "", "", 1, 1, true, false, false, false, null, "", 0, 0, 0);
             bindingSource1.Add(tag);
             int index = list.BinarySearch(tag);
             if (index < 0) index = ~index;
@@ -861,7 +1007,7 @@ namespace TagConfig
                     break;
                 case "删除":
                     {
-                        TagData tag = bindingSource1.Current as TagData;
+                        Tag tag = bindingSource1.Current as Tag;
                         bindingSource1.Remove(tag);
                         list.Remove(tag);
                     }
@@ -1001,7 +1147,7 @@ namespace TagConfig
                         {
                             foreach (var item in list)
                             {
-                                item.Name = front + item.Name;
+                                item.TagName = front + item.TagName;
                             }
                         }
                         else if (treeView1.SelectedNode.Level == 1)
@@ -1011,8 +1157,8 @@ namespace TagConfig
                             {
                                 for (int i = 0; i < rows.Count; i++)
                                 {
-                                    TagData tag = rows[i].DataBoundItem as TagData;
-                                    tag.Name = front + tag.Name;
+                                    Tag tag = rows[i].DataBoundItem as Tag;
+                                    tag.TagName = front + tag.TagName;
                                 }
                             }
                         }
@@ -1020,7 +1166,7 @@ namespace TagConfig
                         {
                             foreach (var item in list.FindAll(x => x.GroupID == curgroupId))
                             {
-                                item.Name = front + item.Name;
+                                item.TagName = front + item.TagName;
                             }
                         }
                     }
@@ -1043,7 +1189,7 @@ namespace TagConfig
                         {
                             foreach (DataGridViewRow item in dataGridView1.SelectedRows)
                             {
-                                var tag = item.DataBoundItem as TagData;
+                                var tag = item.DataBoundItem as Tag;
                                 var index = tag.Address.LastIndexOf('W');
                                 if (index < 0)
                                 {
@@ -1065,7 +1211,7 @@ namespace TagConfig
                         string replace = txtReplace2.Text;
                         foreach (var item in list.FindAll(x => x.GroupID == curgroupId))
                         {
-                            item.Name = item.Name.Replace(filter, replace);
+                            item.TagName = item.TagName.Replace(filter, replace);
                         }
                     }
                     break;
@@ -1095,11 +1241,11 @@ namespace TagConfig
                                 short id = short.Parse(node.Name);
                                 foreach (Driver device in devices)
                                 {
-                                    if (device.ID == id)
+                                    if (device.DriverID == id)
                                     {
                                         DriverSet frm = new DriverSet(device, typeList, arguments);
                                         frm.ShowDialog();
-                                        node.Text = device.Name;
+                                        node.Text = device.DriverName;
                                         return;
                                     }
                                 }
@@ -1109,11 +1255,11 @@ namespace TagConfig
                                 short id = short.Parse(node.Name);
                                 foreach (Group grp in groups)
                                 {
-                                    if (grp.ID == id)
+                                    if (grp.GroupID == id)
                                     {
                                         GroupParam frm = new GroupParam(grp);
                                         frm.ShowDialog();
-                                        node.Text = grp.Name;
+                                        node.Text = grp.GroupName;
                                         return;
                                     }
                                 }
@@ -1139,7 +1285,7 @@ namespace TagConfig
                     break;
                 case "报警":
                     {
-                        var tag = bindingSource1.Current as TagData;
+                        var tag = bindingSource1.Current as Tag;
                         if (tag != null)
                         {
                             AlarmParam frm = new AlarmParam(conditions, subConds, tag);
@@ -1151,7 +1297,7 @@ namespace TagConfig
                     break;
                 case "量程":
                     {
-                        var tag = bindingSource1.Current as TagData;
+                        var tag = bindingSource1.Current as Tag;
                         if (tag != null)
                         {
                             ScaleParam frm = new ScaleParam(scaleList, tag);
@@ -1166,12 +1312,12 @@ namespace TagConfig
                         var rows = dataGridView1.SelectedRows;
                         if (rows != null)
                         {
-                            short maxid = list.Max(x => x.ID);
+                            short maxid = list.Max(x => x.TagID);
                             for (int i = 0; i < rows.Count; i++)
                             {
-                                TagData tag = rows[i].DataBoundItem as TagData;
-                                TagData newtag = new TagData((short)++maxid, tag.GroupID, tag.Name, tag.Address, tag.DataType,
-                                    tag.Size, tag.Active, false, false, tag.Archive, tag.DefaultValue, tag.Description, tag.Maximum, tag.Minimum, tag.Cycle);
+                                Tag tag = rows[i].DataBoundItem as Tag;
+                                Tag newtag = new Tag((short)++maxid, tag.GroupID, tag.TagName, tag.Address, (byte) tag.DataType,
+                                    tag.DataSize, tag.IsActive, false, false, tag.Archive, tag.DefaultValue, tag.Description, tag.Maximum, tag.Minimum, tag.Cycle);
                                 selectedTags.Add(newtag);
                             }
                         }
@@ -1186,7 +1332,7 @@ namespace TagConfig
                         {
                             for (int i = 0; i < rows.Count; i++)
                             {
-                                TagData tag = rows[i].DataBoundItem as TagData;
+                                Tag tag = rows[i].DataBoundItem as Tag;
                                 selectedTags.Add(tag);
                             }
                         }
@@ -1232,7 +1378,7 @@ namespace TagConfig
                         {
                             for (int i = 0; i < rows.Count; i++)
                             {
-                                TagData tag = rows[i].DataBoundItem as TagData;
+                                Tag tag = rows[i].DataBoundItem as Tag;
                                 bindingSource1.Remove(tag);
                                 list.Remove(tag);
                             }
@@ -1278,7 +1424,7 @@ namespace TagConfig
                 if (autolist == null)
                 {
                     var templist = new List<string> { "@Time", "@Date", "@DateTime", "@User", "@AppName", "@LocName", "@Region", "@Path" };
-                    using (var reader = DataHelper.Instance.ExecuteReader("SELECT ISNULL(TagName,'') FROM Meta_Tag ORDER BY TagName"))
+                    using (var reader = DataHelper.Instance.ExecuteReader("SELECT ISNULL(TagName,'') FROM Tag ORDER BY TagName"))
                     {
                         while (reader.Read())
                         {
@@ -1294,10 +1440,10 @@ namespace TagConfig
 
         private void 事件归档ToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            var tag = bindingSource1.Current as TagData;
+            var tag = bindingSource1.Current as Tag;
             if (tag != null)
             {
-                string name = tag.Name.ToUpper();
+                string name = tag.TagName.ToUpper();
                 if (事件归档ToolStripMenuItem.Checked)
                 {
                     foreach (var cond in conditions)
@@ -1326,10 +1472,10 @@ namespace TagConfig
 
         private void contextMenuStrip2_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var tag = bindingSource1.Current as TagData;
+            var tag = bindingSource1.Current as Tag;
             if (tag != null)
             {
-                string name = tag.Name.ToUpper();
+                string name = tag.TagName.ToUpper();
                 foreach (var cond in conditions)
                 {
                     if (cond.Source.ToUpper() == name && cond.EventType == 2)
@@ -1342,64 +1488,4 @@ namespace TagConfig
         }
 
     }
-
-    public struct StructInfo
-    {
-        public string BaseAddress;
-        public string StructName;
-        public string StructType;
-    }
-
-    public class DataTypeSource
-    {
-        byte _type;
-        public byte DataType { get { return _type; } set { _type = value; } }
-
-        string _name;
-        public string Name { get { return _name; } set { _name = value; } }
-
-        public DataTypeSource(byte type, string name)
-        {
-            _type = type;
-            _name = name;
-        }
-    }
-
-    public class DataTypeSource1
-    {
-        int _type;
-        public int DataType { get { return _type; } set { _type = value; } }
-
-        string _name;
-        public string Name { get { return _name; } set { _name = value; } }
-
-        string _path;
-        public string Path { get { return _path; } set { _path = value; } }
-
-        string _className;
-        public string ClassName { get { return _className; } set { _className = value; } }
-
-        public DataTypeSource1(int type, string name, string path, string className)
-        {
-            _type = type;
-            _name = name;
-            _path = path;
-            _className = className;
-        }
-    }
-
-    public class DriverArgumet
-    {
-        public short DriverID;
-        public string PropertyName;
-        public string PropertyValue;
-
-        public DriverArgumet(short id, string name, string value)
-        {
-            DriverID = id;
-            PropertyName = name;
-            PropertyValue = value;
-        }
-    }
-
 }

@@ -10,11 +10,11 @@ namespace TagConfig
     {
         bool _started;
         Driver _device;
-        List<DataTypeSource1> _typeList;
-        List<DriverArgumet> _arguments;
+        List<RegisterModule> _typeList;
+        List<Argument> _arguments;
         static Dictionary<string, Type> _classList = new Dictionary<string, Type>();
 
-        public DriverSet(Driver device, List<DataTypeSource1> typeList, List<DriverArgumet> args)
+        public DriverSet(Driver device, List<RegisterModule> typeList, List<Argument> args)
         {
             _device = device;
             _typeList = typeList;
@@ -30,7 +30,7 @@ namespace TagConfig
         {
             if (_device != null)
             {
-                col.SelectedValue = _device.DeviceDriver;
+                col.SelectedValue = _device.DriverType;
                 //col.SelectedValue = _device.Driver;
                 if (_device.Target != null)
                 {
@@ -43,33 +43,33 @@ namespace TagConfig
 
         private void Form3_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _device.DeviceDriver = Convert.ToInt32(col.SelectedValue);
+            _device.DriverType = Convert.ToInt32(col.SelectedValue);
         }
 
         private void GetProperties(bool isnew)
         {
-            var item = _typeList.Find(x => x.DataType == _device.DeviceDriver);
+            var item = _typeList.Find(x => x.DriverID == _device.DriverType);
             if (item != null)
             {
                 try
                 {
                     Type dvType;
-                    if (!_classList.TryGetValue(item.ClassName, out dvType))
+                    if (!_classList.TryGetValue(item.ClassFullName, out dvType))
                     {
-                        Assembly ass = Assembly.LoadFrom(item.Path);
-                        dvType = ass.GetType(item.ClassName);
-                        _classList[item.ClassName] = dvType;
+                        Assembly ass = Assembly.LoadFrom(item.AssemblyName);
+                        dvType = ass.GetType(item.ClassFullName);
+                        _classList[item.ClassFullName] = dvType;
                     }
                     if (dvType != null)
                     {
-                        var dv = Activator.CreateInstance(dvType, new object[] { null, _device.ID, _device.Name });
+                        var dv = Activator.CreateInstance(dvType, new object[] { null, _device.DriverID, _device.DriverName });
                         if (dv != null)
                         {
                             if (!isnew)
                             {
                                 foreach (var arg in _arguments)
                                 {
-                                    if (arg.DriverID == _device.ID)
+                                    if (arg.DriverID == _device.DriverID)
                                     {
                                         var prop = dvType.GetProperty(arg.PropertyName);
                                         if (prop != null)
@@ -96,7 +96,7 @@ namespace TagConfig
         {
             if (_started)
             {
-                _device.DeviceDriver = Convert.ToInt32(col.SelectedValue);
+                _device.DriverType = Convert.ToInt32(col.SelectedValue);
                 GetProperties(true);
             }
         }

@@ -1,0 +1,11 @@
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\OPCDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\OPCDriver.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\DataService.dll
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\OPCLib.dll
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\DataService.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\bin\Debug\OPCLib.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\obj\Debug\OPCDriver.csprojAssemblyReference.cache
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\obj\Debug\OPCDriver.csproj.CoreCompileInputs.cache
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\obj\Debug\OPCDriver.csproj.CopyComplete
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\obj\Debug\OPCDriver.dll
+F:\GitHub\SharpSCADA\SCADA\Program\OPCDriver\obj\Debug\OPCDriver.pdb

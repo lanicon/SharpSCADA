@@ -49,7 +49,7 @@ namespace TagConfig
             openFileDialog1.DefaultExt = "dll";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                List<Register> regList = new List<Register>();
+                List<RegisterModule> regList = new List<RegisterModule>();
                 string file = openFileDialog1.FileName;
                 txtPath.Text = file;
                 try
@@ -70,11 +70,11 @@ namespace TagConfig
                                         attribute = desp.Description;
                                     }
                                 }
-                                regList.Add(new Register(file, type.Name, type.FullName, attribute));
+                                regList.Add(new RegisterModule(file, type.Name, type.FullName, attribute));
                             }
                         }
                     }
-                    bindingSource1.DataSource = new SortableBindingList<Register>(regList);
+                    bindingSource1.DataSource = new SortableBindingList<RegisterModule>(regList);
                 }
                 catch (Exception ex)
                 {
@@ -85,7 +85,7 @@ namespace TagConfig
 
         private void button1_Click(object sender, EventArgs e)
         {
-          var source=  bindingSource1.DataSource as IEnumerable<Register>;
+          var source=  bindingSource1.DataSource as IEnumerable<RegisterModule>;
           if (source != null)
           {
               StringBuilder sb = new StringBuilder();
@@ -95,7 +95,7 @@ namespace TagConfig
                   {
                       sb.Append("DELETE FROM RegisterModule WHERE CLASSFULLNAME='").Append(reg.ClassFullName).Append("';");
                       sb.Append("INSERT INTO RegisterModule(AssemblyName,ClassName,ClassFullName,Description) VALUES('")
-                          .Append(reg.AssemblyPath).Append("','").Append(reg.ClassName).Append("','").Append(reg.ClassFullName)
+                          .Append(reg.AssemblyName).Append("','").Append(reg.ClassName).Append("','").Append(reg.ClassFullName)
                          .Append("','").Append(reg.Description).Append("');");
                   }
               }

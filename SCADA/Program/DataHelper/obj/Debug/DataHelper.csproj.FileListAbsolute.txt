@@ -1,0 +1,11 @@
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\DataHelper.dll.config
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\DataHelper.dll
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\DataHelper.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\DataService.dll
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\MySql.Data.dll
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\bin\Debug\DataService.pdb
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\obj\Debug\DataHelper.csprojAssemblyReference.cache
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\obj\Debug\DataHelper.csproj.CoreCompileInputs.cache
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\obj\Debug\DataHelper.csproj.CopyComplete
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\obj\Debug\DataHelper.dll
+F:\GitHub\SharpSCADA\SCADA\Program\DataHelper\obj\Debug\DataHelper.pdb

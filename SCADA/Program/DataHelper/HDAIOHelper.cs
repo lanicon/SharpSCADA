@@ -508,7 +508,7 @@ namespace DatabaseLib
         {
             StringBuilder sql = new StringBuilder("SELECT ");
             if (ID == null) sql.Append("ID,");
-            sql.Append(" [TIMESTAMP],[VALUE],M.DATATYPE FROM LOG_HDATA L INNER JOIN META_TAG M ON L.ID=M.TAGID WHERE");
+            sql.Append(" [TIMESTAMP],[VALUE],M.DATATYPE FROM LOG_HDATA L INNER JOIN TAG M ON L.ID=M.TAGID WHERE");
             if (ID != null) sql.Append("  ID=").Append(ID.Value).Append(" AND ");
             sql.Append(" [TIMESTAMP] IN(");
             for (int i = 0; i < timeStamps.Length; i++)

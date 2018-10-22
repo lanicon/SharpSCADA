@@ -47,16 +47,16 @@ namespace TagConfig
                 {
                     case "开关型":
                     case "字节":
-                        ((TagData)_source.Current).Size = 1;
+                        ((Tag)_source.Current).DataSize = 1;
                         break;
                     case "短整型":
                     case "单字型":
-                        ((TagData)_source.Current).Size = 2;
+                        ((Tag)_source.Current).DataSize = 2;
                         break;
                     case "时间型":
                     case "双字型":
                     case "浮点型":
-                        ((TagData)_source.Current).Size = 4;
+                        ((Tag)_source.Current).DataSize = 4;
                         break;
                     case "ASCII字符串":
                     case "UNICODE字符串":
